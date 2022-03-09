@@ -1,4 +1,4 @@
-module github.com/akhettar/gin-jwt-cognito
+module github.com/fghpdf/gin-jwt-cognito
 
 go 1.17
 
