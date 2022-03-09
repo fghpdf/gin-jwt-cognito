@@ -1,3 +1,5 @@
+github.com/akhettar/gin-jwt-cognito v0.11.0 h1:3FrydE3sBlWUptqEATuxhqqWSnmdRigvuv+4s39gpcY=
+github.com/akhettar/gin-jwt-cognito v0.11.0/go.mod h1:dH0i5OQ6b4NhRh2Y3/LMOwfcv0lVkYMznYHQr3VBVHU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

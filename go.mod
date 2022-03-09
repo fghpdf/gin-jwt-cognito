@@ -3,6 +3,7 @@ module github.com/fghpdf/gin-jwt-cognito
 go 1.17
 
 require (
+	github.com/akhettar/gin-jwt-cognito v0.11.0
 	github.com/gin-gonic/gin v1.7.4
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/stretchr/testify v1.7.0
