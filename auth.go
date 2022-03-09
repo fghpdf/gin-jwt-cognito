@@ -7,9 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	jwtgo "github.com/golang-jwt/jwt"
 	"github.com/gin-gonic/gin"
-	"log"
+	jwtgo "github.com/golang-jwt/jwt"
 	"math/big"
 	"net/http"
 	"strings"
@@ -29,10 +28,10 @@ const (
 	// AuthenticateHeader the Gin authenticate header
 	AuthenticateHeader = "WWW-Authenticate"
 
-	// AuthorizationHeader the auth header that gets passed to all services
+	// AuthorizationHeader the auth header that gets past to all services
 	AuthorizationHeader = "Authentication"
 
-	// Forward slash character
+	// ForwardSlash Forward slash character
 	ForwardSlash = "/"
 
 	// HEADER used by the JWT middle ware
@@ -40,6 +39,9 @@ const (
 
 	// IssuerFieldName the issuer field name
 	IssuerFieldName = "iss"
+
+	// ContextToken the token key
+	ContextToken = "JWT_TOKEN"
 )
 
 // AuthMiddleware middleware
@@ -135,7 +137,6 @@ func (mw *AuthMiddleware) middlewareImpl(c *gin.Context) {
 	}
 
 	if err != nil {
-		log.Printf("JWT token Parser error: %s", err.Error())
 		mw.unauthorized(c, http.StatusUnauthorized, err.Error())
 		return
 	}
@@ -143,12 +144,11 @@ func (mw *AuthMiddleware) middlewareImpl(c *gin.Context) {
 	token, err := mw.parse(tokenStr)
 
 	if err != nil {
-		log.Printf("JWT token Parser error: %s", err.Error())
 		mw.unauthorized(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	c.Set("JWT_TOKEN", token)
+	c.Set(ContextToken, token)
 	c.Next()
 }
 
@@ -183,8 +183,8 @@ func (mw *AuthMiddleware) MiddlewareFunc() gin.HandlerFunc {
 }
 
 // AuthJWTMiddleware create an instance of the middle ware function
-func AuthJWTMiddleware(iss, userPoolID, region string) (*AuthMiddleware, error) {
-
+func AuthJWTMiddleware(userPoolID, region string) (*AuthMiddleware, error) {
+	iss := fmt.Sprintf("https://cognito-idp.%v.amazonaws.com/%v", region, userPoolID)
 	// Download the public json web key for the given user pool ID at the start of the plugin
 	jwk, err := getJWK(fmt.Sprintf("https://cognito-idp.%v.amazonaws.com/%v/.well-known/jwks.json", region, userPoolID))
 	if err != nil {
@@ -261,8 +261,8 @@ func (mw *AuthMiddleware) parse(tokenStr string) (*jwtgo.Token, error) {
 func validateAWSJwtClaims(claims jwtgo.MapClaims, region, userPoolID string) error {
 	var err error
 	// 3. Check the iss claim. It should match your user pool.
-	issShoudBe := fmt.Sprintf("https://cognito-idp.%v.amazonaws.com/%v", region, userPoolID)
-	err = validateClaimItem("iss", []string{issShoudBe}, claims)
+	issShouldBe := fmt.Sprintf("https://cognito-idp.%v.amazonaws.com/%v", region, userPoolID)
+	err = validateClaimItem("iss", []string{issShouldBe}, claims)
 	if err != nil {
 		Error.Printf("Failed to validate the jwt token claims %v", err)
 		return err
@@ -311,8 +311,6 @@ func validateExpired(claims jwtgo.MapClaims) error {
 	if tokenExp, ok := claims["exp"]; ok {
 		if exp, ok := tokenExp.(float64); ok {
 			now := time.Now().Unix()
-			fmt.Printf("current unixtime : %v\n", now)
-			fmt.Printf("expire unixtime  : %v\n", int64(exp))
 			if int64(exp) > now {
 				return nil
 			}
@@ -346,7 +344,6 @@ func convertKey(rawE, rawN string) *rsa.PublicKey {
 
 // Download the json web public key for the given user pool id
 func getJWK(jwkURL string) (map[string]JWKKey, error) {
-	Info.Printf("Downloading the jwk from the given url %s", jwkURL)
 	jwk := &JWK{}
 
 	var myClient = &http.Client{Timeout: 10 * time.Second}
